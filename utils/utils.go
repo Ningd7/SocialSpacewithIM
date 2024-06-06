@@ -6,25 +6,24 @@ import (
 	"crypto/md5"
 	"encoding/hex"
 	"encoding/json"
-	"io"
 	"net/http"
 	"strings"
 )
 
-func DecodeJSONBody(r *http.Request, dst interface{}) error {
-	body, err := io.ReadAll(r.Body)
-	if err != nil {
-		return err // 读取请求体失败
-	}
-	defer r.Body.Close()
-
-	// 尝试将JSON数据解码到dst指向的结构体中
-	if err := json.Unmarshal(body, dst); err != nil {
-		return err // JSON解码失败
-	}
-
-	return nil // 数据解析成功
-}
+//func DecodeJSONBody(r *http.Request, dst interface{}) error {
+//	body, err := io.ReadAll(r.Body)
+//	if err != nil {
+//		return err // 读取请求体失败
+//	}
+//	defer r.Body.Close()
+//
+//	// 尝试将JSON数据解码到dst指向的结构体中
+//	if err := json.Unmarshal(body, dst); err != nil {
+//		return err // JSON解码失败
+//	}
+//
+//	return nil // 数据解析成功
+//}
 
 func EncryptPassword(password string) string {
 	// password是明文的密码
@@ -44,7 +43,7 @@ func CheckToken(r *http.Request) (*models.User, bool) {
 	}
 	username := strings.ReplaceAll(temp[1], ";", "")
 	// 根据cookie里的用户信息查询当前用户
-	user, _, err := repository.GetUserByUsername(username)
+	user, err := repository.GetUserByUsername(username)
 	if err != nil {
 		return nil, false
 	}
@@ -62,6 +61,12 @@ func JSON(w http.ResponseWriter, x interface{}) {
 	w.WriteHeader(http.StatusOK)
 	// 4.4 返回结果。
 	w.Write(res)
+}
+
+func VerifyPassword(password, encryptPassword string) bool {
+	// password是明文的密码， encryptPassword是加密后的密码
+
+	return encryptPassword == EncryptPassword(password)
 }
 
 // 跨域处理

@@ -1,21 +1,23 @@
 package config
 
 import (
-	"database/sql"
 	"fmt"
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
 )
 
-var db *sql.DB
+var DB *gorm.DB
 
-func init() {
-	dbSource := "root:123456@tcp(192.168.43.116:3306)/SocialSpace?charset=utf8mb4&parseTime=True&loc=Local\"
-	dbcnn, err := sql.Open("mysql", dbSource)
+func InitDB() {
+	dsn := "root:123456@tcp(172.21.114.63:3306)/SocialSpace?charset=utf8mb4&parseTime=True&loc=Local"
+	var err error
+	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
-		fmt.Println(err)
+		fmt.Printf("Failed to connect to database: %v\n", err)
+		panic("failed to connect database")
 	}
-	db = dbcnn
 }
 
-func GetDB() *sql.DB {
-	return db
+func GetDB() *gorm.DB {
+	return DB
 }
